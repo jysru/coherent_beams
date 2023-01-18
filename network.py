@@ -4,6 +4,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+def rotate_coords(x: list, y: list, angle: float) -> tuple[list, list]:
+    if not isinstance(x, np.ndarray):
+        x = np.array(x)
+    if not isinstance(y, np.ndarray):
+        y = np.array(y)
+    xp = x*np.cos(angle) - y*np.sin(angle)
+    yp = x*np.sin(angle) + y*np.cos(angle)
+    return xp, yp
+        
+
 class Lattice(Enum):
     LINE = 0
     SQUARE = 1
@@ -18,7 +28,6 @@ class Network(ABC):
         self.lattice: Lattice
         self.pitch: float = pitch
         self.number: int
-        self.size: int
         self.coords: np.array[float, float]
         self.center: list[float, float] = np.array(center)
         self.angle: float = angle
@@ -35,8 +44,7 @@ class Network(ABC):
         pass
 
     def _rotate(self) -> None:
-        x = self.coords[:,0] * np.cos(self.angle) - self.coords[:,1] * np.sin(self.angle)
-        y = self.coords[:,0] * np.sin(self.angle) + self.coords[:,1] * np.cos(self.angle)
+        x, y = rotate_coords(self.coords[:,0], self.coords[:,1], angle=self.angle)
         self.coords[:,0] = x
         self.coords[:,1] = y
 
@@ -119,13 +127,46 @@ class TriangleNetwork(Network):
 
 class HexagonalNetwork(Network):
 
-    def __init__(self) -> None:
+    def __init__(self, rings: int, pitch: tuple[float, float], center: list[float, float] = [0, 0], angle: float = 0) -> None:
+        super().__init__(pitch, center, angle)
         self.lattice = Lattice.HEXAGON
-        super().__init__()
+        self.rings: int = rings
+        self.diagonal: int = 1 + 2*self.rings
+        self.number: int = int((np.power((6*self.rings + 3)/np.sqrt(3), 2)+1)/4)
+        print(self.number)
+        self._compute()
+
+    def _compute_coords(self) -> None:
+        coords = np.zeros(shape=(self.number, 2))
+        x = []
+        y = []
+
+        k = 0
+        for i in range(self.rings, -1, -1):
+            ylin = np.sqrt(3)*i*self.pitch/2
+            for j in range(1, (2*self.rings+2-i)):
+                k += 1
+                x.append( (-(2*self.rings-i+2)*self.pitch)/2 + j*self.pitch )
+                y.append( ylin )
+        
+        x_tmp = np.array( x[0 : int((self.number-1)/2 - self.rings)] )
+        y_tmp = np.array( y[0 : int((self.number-1)/2 - self.rings)] )
+
+        x_tmp, y_tmp = rotate_coords(x_tmp, y_tmp, angle=np.pi)
+
+        xx = np.concatenate((np.array(x), np.flip(x_tmp)))
+        yy = np.concatenate((np.array(y), np.flip(y_tmp)))
+        
+        coords[:, 0] = xx
+        coords[:, 1] = yy
+
+        self.coords = coords
 
 
 if __name__ == "__main__":
     t = LinearNetwork(number=3, pitch=1)
     t = SquareNetwork(size=3, pitch=1)
     t = RectangleNetwork(sizes=(2,3), pitch=1)
+    t = HexagonalNetwork(rings=3, pitch=1)
     t.show()
+
