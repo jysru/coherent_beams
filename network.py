@@ -14,7 +14,7 @@ class Lattice(Enum):
 class Network(ABC):
 
     def __init__(self, pitch: float, center: list[float, float] = [0, 0], angle: float = 0) -> None:
-        self.pattern: Lattice
+        self.lattice: Lattice
         self.pitch: float = pitch
         self.number: int
         self.coords: np.array[float, float]
@@ -46,7 +46,7 @@ class LinearNetwork(Network):
 
     def __init__(self, number: int, pitch: float, center: list[float, float] = [0, 0], angle: float = 0) -> None:
         super().__init__(pitch, center, angle)
-        self.pattern = Lattice.LINE
+        self.lattice = Lattice.LINE
         self.number: int = number
         self._compute()
 
@@ -62,7 +62,7 @@ class SquareNetwork(Network):
 
     def __init__(self, size: int, pitch: float, center: list[float, float] = [0, 0], angle: float = 0) -> None:
         super().__init__(pitch, center, angle)
-        self.pattern = Lattice.SQUARE
+        self.lattice = Lattice.SQUARE
         self.size: int = size
         self.number: int = np.power(self.size, 2)
         self._compute()
@@ -83,20 +83,20 @@ class RectangleNetwork(Network):
 
     def __init__(self) -> None:
         super().__init__()
-        self.pattern = Lattice.RECTANGLE
+        self.lattice = Lattice.RECTANGLE
 
 
 class TriangleNetwork(Network):
 
     def __init__(self) -> None:
-        self.pattern = Lattice.TRIANGLE
+        self.lattice = Lattice.TRIANGLE
         return NotImplementedError
     
 
 class HexagonalNetwork(Network):
 
     def __init__(self) -> None:
-        self.pattern = Lattice.HEXAGON
+        self.lattice = Lattice.HEXAGON
         super().__init__()
 
 
