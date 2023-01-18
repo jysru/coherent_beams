@@ -1,6 +1,7 @@
 from enum import Enum
 from abc import ABC, abstractmethod, abstractproperty
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 class Lattice(Enum):
@@ -17,6 +18,7 @@ class Network(ABC):
         self.lattice: Lattice
         self.pitch: float = pitch
         self.number: int
+        self.size: int
         self.coords: np.array[float, float]
         self.center: list[float, float] = np.array(center)
         self.angle: float = angle
@@ -40,6 +42,12 @@ class Network(ABC):
 
     def _add_offset(self) -> None:
         self.coords += np.array(self.center)
+
+    def show(self) -> None:
+        plt.figure()
+        plt.scatter(x=self.coords[:,0], y=self.coords[:,1])
+        plt.title(f"{self.lattice.name} lattice")
+        plt.show()
 
 
 class LinearNetwork(Network):
@@ -76,14 +84,30 @@ class SquareNetwork(Network):
             for col in range(self.size):
                 idx = np.ravel_multi_index(multi_index=([row], [col]), dims=(self.size, self.size))
                 coords[idx,:] = [coords_1D[row], coords_1D[col]]
-        self.coords = coords    
+        self.coords = coords
 
 
 class RectangleNetwork(Network):
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, sizes: tuple[int, int], pitch: tuple[float, float], center: list[float, float] = [0, 0], angle: float = 0) -> None:
+        super().__init__(pitch, center, angle)
         self.lattice = Lattice.RECTANGLE
+        self.size: tuple[int, int] = sizes
+        self.number: int = np.prod(self.size)
+        self._compute()
+
+    def _compute_coords(self) -> None:
+        expansion_x = (self.size[0] - 1) * self.pitch
+        expansion_y = (self.size[1] - 1) * self.pitch
+        coords_x = np.linspace(start=-expansion_x/2, stop=expansion_x/2, num=self.size[0])
+        coords_y = np.linspace(start=-expansion_y/2, stop=expansion_y/2, num=self.size[1])
+        coords = np.zeros(shape=(self.number, 2))
+
+        for row in range(self.size[0]):
+            for col in range(self.size[1]):
+                idx = np.ravel_multi_index(multi_index=([row], [col]), dims=(self.size[0], self.size[1]))
+                coords[idx,:] = [coords_x[row], coords_y[col]]
+        self.coords = coords
 
 
 class TriangleNetwork(Network):
@@ -102,7 +126,6 @@ class HexagonalNetwork(Network):
 
 if __name__ == "__main__":
     t = LinearNetwork(number=3, pitch=1)
-    print(t.coords)
-
     t = SquareNetwork(size=3, pitch=1)
-    print(t.coords)
+    t = RectangleNetwork(sizes=(2,3), pitch=1)
+    t.show()
