@@ -53,6 +53,7 @@ class Network(ABC):
 
     def show(self) -> None:
         plt.figure()
+        plt.axis("equal")
         plt.scatter(x=self.coords[:,0], y=self.coords[:,1])
         plt.title(f"{self.lattice.name} lattice")
         plt.show()
@@ -119,10 +120,31 @@ class RectangleNetwork(Network):
 
 
 class TriangleNetwork(Network):
-
-    def __init__(self) -> None:
+    
+    def __init__(self, size: int, pitch: tuple[float, float], center: list[float, float] = [0, 0], angle: float = 0) -> None:
+        super().__init__(pitch, center, angle)
         self.lattice = Lattice.TRIANGLE
-        return NotImplementedError
+        self.size: int = size
+        self.number: int = int(0.5 * self.size * (self.size + 1))
+        self._compute()
+
+    def _compute_coords(self) -> None:
+        coords = np.zeros(shape=(self.number, 2))
+        x, y = [], []
+        height = np.sqrt(3)/2 * self.pitch * (self.size - 1)
+
+        for line in range(0, self.size):
+            y_line = np.sqrt(3)/2*self.pitch*line - height/2
+            n_on_line = self.size - line
+            for col in range(0, n_on_line):
+                x_col = -(n_on_line - 1)*self.pitch/2 + col * self.pitch
+                x.append(x_col)
+                y.append(y_line)
+
+        coords[:,0] = np.array(x)
+        coords[:,1] = np.array(y)
+
+        self.coords = coords
     
 
 class HexagonalNetwork(Network):
@@ -133,7 +155,6 @@ class HexagonalNetwork(Network):
         self.rings: int = rings
         self.diagonal: int = 1 + 2*self.rings
         self.number: int = int((np.power((6*self.rings + 3)/np.sqrt(3), 2)+1)/4)
-        print(self.number)
         self._compute()
 
     def _compute_coords(self) -> None:
@@ -164,9 +185,11 @@ class HexagonalNetwork(Network):
 
 
 if __name__ == "__main__":
-    t = LinearNetwork(number=3, pitch=1)
-    t = SquareNetwork(size=3, pitch=1)
-    t = RectangleNetwork(sizes=(2,3), pitch=1)
-    t = HexagonalNetwork(rings=3, pitch=1)
-    t.show()
+    # t = LinearNetwork(number=3, pitch=1)
+    # t = SquareNetwork(size=3, pitch=1)
+    # t = RectangleNetwork(sizes=(2,3), pitch=1)
+    # t = HexagonalNetwork(rings=3, pitch=1)
+    # t.show()
 
+    t = TriangleNetwork(size=3, pitch=1)
+    t.show()
