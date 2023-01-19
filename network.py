@@ -73,7 +73,18 @@ class LinearNetwork(Network):
         coords[:,0] = np.linspace(start=-expansion/2, stop=expansion/2, num=self.number)
         coords[:,1] = np.zeros(shape=(self.number))
         self.coords = coords
+
+    def __str__(self) -> str:
+        return f"""
+        {self.__class__.__name__}:
+        - Number: {self.number}
+        - Pitch: {self.pitch}
+        - Center: {self.center}
+        - Angle: {self.angle}
+        """
         
+    def __repr__(self) -> str:
+        return f"network.{self.__class__.__name__}({self.number}, {self.pitch}, {self.center}, {self.angle})"
 
 class SquareNetwork(Network):
 
@@ -94,6 +105,19 @@ class SquareNetwork(Network):
                 idx = np.ravel_multi_index(multi_index=([row], [col]), dims=(self.size, self.size))
                 coords[idx,:] = [coords_1D[row], coords_1D[col]]
         self.coords = coords
+
+    def __str__(self) -> str:
+        return f"""
+        {self.__class__.__name__}:
+        - Size: {self.size}
+        - Number: {self.number}
+        - Pitch: {self.pitch}
+        - Center: {self.center}
+        - Angle: {self.angle}
+        """
+        
+    def __repr__(self) -> str:
+        return f"network.{self.__class__.__name__}({self.size}, {self.pitch}, {self.center}, {self.angle})"
 
 
 class RectangleNetwork(Network):
@@ -117,6 +141,19 @@ class RectangleNetwork(Network):
                 idx = np.ravel_multi_index(multi_index=([row], [col]), dims=(self.size[0], self.size[1]))
                 coords[idx,:] = [coords_x[row], coords_y[col]]
         self.coords = coords
+
+    def __str__(self) -> str:
+        return f"""
+        {self.__class__.__name__}:
+        - Size: {self.size}
+        - Number: {self.number}
+        - Pitch: {self.pitch}
+        - Center: {self.center}
+        - Angle: {self.angle}
+        """
+        
+    def __repr__(self) -> str:
+        return f"network.{self.__class__.__name__}({self.size}, {self.pitch}, {self.center}, {self.angle})"
 
 
 class TriangleNetwork(Network):
@@ -145,6 +182,19 @@ class TriangleNetwork(Network):
         coords[:,1] = np.array(y)
 
         self.coords = coords
+
+    def __str__(self) -> str:
+        return f"""
+        {self.__class__.__name__}:
+        - Size: {self.size}
+        - Number: {self.number}
+        - Pitch: {self.pitch}
+        - Center: {self.center}
+        - Angle: {self.angle}
+        """
+        
+    def __repr__(self) -> str:
+        return f"network.{self.__class__.__name__}({self.size}, {self.pitch}, {self.center}, {self.angle})"
     
 
 class HexagonalNetwork(Network):
@@ -183,13 +233,26 @@ class HexagonalNetwork(Network):
 
         self.coords = coords
 
+    def __str__(self) -> str:
+        return f"""
+        {self.__class__.__name__}:
+        - Rings: {self.rings}
+        - Number: {self.number}
+        - Pitch: {self.pitch}
+        - Center: {self.center}
+        - Angle: {self.angle}
+        """
+        
+    def __repr__(self) -> str:
+        return f"network.{self.__class__.__name__}({self.rings}, {self.pitch}, {self.center}, {self.angle})"
+
 
 if __name__ == "__main__":
-    # t = LinearNetwork(number=3, pitch=1)
+    t = LinearNetwork(number=3, pitch=1)    
     # t = SquareNetwork(size=3, pitch=1)
     # t = RectangleNetwork(sizes=(2,3), pitch=1)
     # t = HexagonalNetwork(rings=3, pitch=1)
     # t.show()
 
     t = TriangleNetwork(size=3, pitch=1)
-    t.show()
+    # t.show()
